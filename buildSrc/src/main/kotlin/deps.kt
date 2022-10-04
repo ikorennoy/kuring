@@ -8,4 +8,5 @@ object deps {
     const val jctools = "4.0.1"
     const val object_pool = "2.2.1"
     const val object_pool_disruptor = "1.2.15"
+    const val picocli = "4.6.3"
 }
