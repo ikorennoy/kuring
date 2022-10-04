@@ -1,5 +1,6 @@
 package one.kuring.benchmark
 
+import one.kuring.EventExecutor
 import picocli.CommandLine
 import picocli.CommandLine.Command
 import java.util.concurrent.Callable
@@ -32,7 +33,7 @@ class Benchmark : Callable<Int> {
 
 
     override fun call(): Int {
-        println("Called")
+        println(EventExecutor.initDefault())
         return 0
     }
 

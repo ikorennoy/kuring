@@ -11,17 +11,9 @@ repositories {
     mavenCentral()
 }
 
-dependencies {
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:${deps.kotlin_coroutines}")
-    implementation("cn.danielw:fast-object-pool:${deps.object_pool}")
-    implementation("com.conversantmedia:disruptor:${deps.object_pool_disruptor}")
-    implementation("org.jctools:jctools-core:${deps.jctools}")
-    testImplementation("org.junit.jupiter:junit-jupiter:${deps.junit}")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:${deps.kotlin_test}")
-    testImplementation("org.jetbrains.kotlin:kotlin-test:${deps.kotlin_test}")
-}
 
 tasks.test {
+    dependsOn.add(tasks.jar)
     useJUnitPlatform()
 }
 
@@ -129,8 +121,30 @@ fun getCompileObjectArgs(sourceFile: File, outputFile: File): List<String> {
 
 
 tasks.withType<KotlinCompile> {
-    dependsOn.add(tasks.getByName("sharedLib"))
     kotlinOptions.jvmTarget = "1.8"
 }
 
+tasks.jar {
+    dependsOn.add(tasks.getByName("sharedLib"))
+    from(sharedLib)
+    archiveClassifier.set("linux-$arch")
+    manifest {
+        attributes(
+            mapOf(
+                "Implementation-Title" to project.name,
+                "Implementation-Version" to project.version,
+                "Bundle-Description" to "kuring provides an API for working with files through the Linux io_uring interface"
+            ),
+        )
+    }
+}
 
+dependencies {
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:${deps.kotlin_coroutines}")
+    implementation("cn.danielw:fast-object-pool:${deps.object_pool}")
+    implementation("com.conversantmedia:disruptor:${deps.object_pool_disruptor}")
+    implementation("org.jctools:jctools-core:${deps.jctools}")
+    testImplementation("org.junit.jupiter:junit-jupiter:${deps.junit}")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:${deps.kotlin_test}")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:${deps.kotlin_test}")
+}
