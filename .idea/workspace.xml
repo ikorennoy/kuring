@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="94b5aa89-df2e-411c-9641-697ba8803b22" name="Changes" comment="Simple optimizations">
+    <list default="true" id="94b5aa89-df2e-411c-9641-697ba8803b22" name="Changes" comment="Remove unnecessary type">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/one.kuring/AbstractFile.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/one.kuring/AbstractFile.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/benchmark/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/benchmark/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/buildSrc/src/main/kotlin/deps.kt" beforeDir="false" afterPath="$PROJECT_DIR$/buildSrc/src/main/kotlin/deps.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -278,7 +280,14 @@
       <option name="project" value="LOCAL" />
       <updated>1664990573037</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Remove unnecessary type">
+      <created>1665003079545</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1665003079545</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -304,7 +313,8 @@
     <MESSAGE value="Add channel bench" />
     <MESSAGE value="Fix benchmark random bug" />
     <MESSAGE value="Add batch submit" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add batch submit" />
+    <MESSAGE value="Remove unnecessary type" />
+    <option name="LAST_COMMIT_MESSAGE" value="Remove unnecessary type" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
