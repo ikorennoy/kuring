@@ -29,14 +29,14 @@ class BenchmarkWorkerIoUring(
 
         if (submitBatchSize == 1) {
             do {
-                val r = file.read(buffer, getOffset(maxBlocks), bufferSize)
                 calls++
+                val r = file.read(buffer, getOffset(maxBlocks), bufferSize)
+                reaps++
                 if (r != bufferSize) {
                     println("Unexpected ret: $r")
                 }
                 buffer.clear()
-                reaps += 1
-                done += 1
+                done++
             } while (isRunning)
         }
     }

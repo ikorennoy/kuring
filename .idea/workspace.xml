@@ -4,12 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="94b5aa89-df2e-411c-9641-697ba8803b22" name="Changes" comment="Add benchmark simple benchmark">
-      <change afterPath="$PROJECT_DIR$/benchmark/src/main/kotlin/one/kuring/benchmark/BenchmarkWorkerFileChannel.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/benchmark/src/main/kotlin/one/kuring/benchmark/BenchmarkWorkerIoUring.kt" afterDir="false" />
+    <list default="true" id="94b5aa89-df2e-411c-9641-697ba8803b22" name="Changes" comment="Add channel bench">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/benchmark/src/main/kotlin/one/kuring/benchmark/Benchmark.kt" beforeDir="false" afterPath="$PROJECT_DIR$/benchmark/src/main/kotlin/one/kuring/benchmark/Benchmark.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/benchmark/src/main/kotlin/one/kuring/benchmark/BenchmarkWorker.kt" beforeDir="false" afterPath="$PROJECT_DIR$/benchmark/src/main/kotlin/one/kuring/benchmark/BenchmarkWorker.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/benchmark/src/main/kotlin/one/kuring/benchmark/BenchmarkWorkerIoUring.kt" beforeDir="false" afterPath="$PROJECT_DIR$/benchmark/src/main/kotlin/one/kuring/benchmark/BenchmarkWorkerIoUring.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -202,7 +201,7 @@
     <configuration name="BenchmarkKt" type="JetRunConfigurationType" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="one.kuring.benchmark.BenchmarkKt" />
       <module name="kuring.benchmark.main" />
-      <option name="PROGRAM_PARAMETERS" value="-s=1 -w1 -S=true $PROJECT_DIR$/../jasyncfio/filename" />
+      <option name="PROGRAM_PARAMETERS" value="-s=1 -w2 $PROJECT_DIR$/../jasyncfio/filename" />
       <shortenClasspath name="NONE" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -250,7 +249,7 @@
       <workItem from="1664891640696" duration="9681000" />
       <workItem from="1664906650182" duration="3408000" />
       <workItem from="1664966609477" duration="6206000" />
-      <workItem from="1664976107766" duration="4409000" />
+      <workItem from="1664976107766" duration="9024000" />
     </task>
     <task id="LOCAL-00001" summary="init">
       <created>1664892277542</created>
@@ -280,7 +279,14 @@
       <option name="project" value="LOCAL" />
       <updated>1664976116819</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Add channel bench">
+      <created>1664982677741</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1664982677741</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -303,6 +309,7 @@
     <MESSAGE value="Add BufferedFile and tests" />
     <MESSAGE value="Add benchmark init params" />
     <MESSAGE value="Add benchmark simple benchmark" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add benchmark simple benchmark" />
+    <MESSAGE value="Add channel bench" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add channel bench" />
   </component>
 </project>

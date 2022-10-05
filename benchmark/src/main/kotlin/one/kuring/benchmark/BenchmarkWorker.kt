@@ -1,6 +1,7 @@
 package one.kuring.benchmark
 
 import java.nio.file.Path
+import java.util.Random
 import java.util.concurrent.ThreadLocalRandom
 import kotlin.math.abs
 
@@ -12,18 +13,18 @@ abstract class BenchmarkWorker(
 
     private val thread: Thread = Thread(this)
 
-    private val random = ThreadLocalRandom.current()
+    private val random = Random(thread.hashCode().toLong())
 
-    @Volatile
+//    @Volatile
     var calls: Long = 0
 
-    @Volatile
+//    @Volatile
     var done: Long = 0
 
-    @Volatile
+//    @Volatile
     var reaps: Long = 0;
 
-    @Volatile
+//    @Volatile
     var isRunning: Boolean = true
 
 

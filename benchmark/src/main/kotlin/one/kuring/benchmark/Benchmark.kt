@@ -77,19 +77,21 @@ class Benchmark : Callable<Int> {
             worker.start()
             workers.add(worker)
         }
-        var reaps: Long = 0
+
+        var reap: Long = 0
         var calls: Long = 0
         var done: Long = 0
         do {
             var thisDone: Long = 0
             var thisReap: Long = 0
             var thisCall: Long = 0
-            var rpc: Long = 0
-            var ipc: Long = 0
-            var iops: Long = 0
-            var bw: Long = 0
+            var rpc: Long
+            var ipc: Long
+            var iops: Long
+            var bw: Long
 
             Thread.sleep(1000)
+
 
             for (i in 0 until threads) {
                 thisDone += workers[i].done
@@ -99,7 +101,7 @@ class Benchmark : Callable<Int> {
 
             if ((thisCall - calls) > 0) {
                 rpc = (thisDone - done) / (thisCall - calls)
-                ipc = (thisReap - reaps) / (thisCall - calls)
+                ipc = (thisReap - reap) / (thisCall - calls)
             } else {
                 rpc = -1
                 ipc = -1
@@ -116,7 +118,7 @@ class Benchmark : Callable<Int> {
             println("IOS/call=${rpc}/${ipc}")
             done = thisDone
             calls = thisCall
-            reaps = thisReap
+            reap = thisReap
         } while (true)
 
     }
