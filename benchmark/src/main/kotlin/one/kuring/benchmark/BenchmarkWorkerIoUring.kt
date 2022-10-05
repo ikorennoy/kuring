@@ -1,10 +1,10 @@
 package one.kuring.benchmark
 
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
-import one.kuring.BufferedFile
-import one.kuring.EventExecutor
-import one.kuring.OpenOption
-import java.nio.ByteBuffer
+import kotlinx.coroutines.withContext
+import one.kuring.*
 import java.nio.file.Path
 
 class BenchmarkWorkerIoUring(
@@ -21,23 +21,46 @@ class BenchmarkWorkerIoUring(
         .entries(ioDepth)
         .build()
 
+    private val buffers = Array(ioDepth) { MemoryUtils.allocateAlignedByteBuffer(bufferSize, Native.getPageSize()) }
+
 
     override fun run() = runBlocking {
         val file = BufferedFile.open(path, eventExecutor, OpenOption.READ_ONLY, OpenOption.NOATIME)
-        val buffer = ByteBuffer.allocateDirect(bufferSize)
-        val maxBlocks = one.kuring.Native.getFileSize(file.fd) / blockSize
+        val maxBlocks = Native.getFileSize(file.fd) / blockSize
 
         if (submitBatchSize == 1) {
             do {
                 calls++
-                val r = file.read(buffer, getOffset(maxBlocks), bufferSize)
+                val r = file.read(buffers[0], getOffset(maxBlocks), bufferSize)
                 reaps++
                 if (r != bufferSize) {
                     println("Unexpected ret: $r")
                 }
-                buffer.clear()
+                buffers[0].clear()
                 done++
             } while (isRunning)
+        } else {
+            withContext(this.coroutineContext) {
+                val pending = arrayOfNulls<Deferred<Int>>(submitBatchSize)
+                do {
+                    calls++
+                    for (i in 0 until submitBatchSize) {
+                        pending[i] = async {
+                            val r = file.read(buffers[i], getOffset(maxBlocks), bufferSize)
+                            buffers[i].clear()
+                            r
+                        }
+                    }
+                    pending.forEach {
+                        val r = it?.await()
+                        reaps++
+                        if (r != bufferSize) {
+                            println("Unexpected ret: $r")
+                        }
+                        done++
+                    }
+                } while (isRunning)
+            }
         }
     }
 

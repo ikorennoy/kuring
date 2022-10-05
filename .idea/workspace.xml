@@ -4,11 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="94b5aa89-df2e-411c-9641-697ba8803b22" name="Changes" comment="Add channel bench">
+    <list default="true" id="94b5aa89-df2e-411c-9641-697ba8803b22" name="Changes" comment="Fix benchmark random bug">
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/benchmark/src/main/kotlin/one/kuring/benchmark/Benchmark.kt" beforeDir="false" afterPath="$PROJECT_DIR$/benchmark/src/main/kotlin/one/kuring/benchmark/Benchmark.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/benchmark/src/main/kotlin/one/kuring/benchmark/BenchmarkWorker.kt" beforeDir="false" afterPath="$PROJECT_DIR$/benchmark/src/main/kotlin/one/kuring/benchmark/BenchmarkWorker.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/benchmark/src/main/kotlin/one/kuring/benchmark/BenchmarkWorkerIoUring.kt" beforeDir="false" afterPath="$PROJECT_DIR$/benchmark/src/main/kotlin/one/kuring/benchmark/BenchmarkWorkerIoUring.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/one/kuring/MemoryUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/one/kuring/MemoryUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/one.kuring/AbstractFile.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/one.kuring/AbstractFile.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/kotlin/one/kuring/BufferedFileTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/kotlin/one/kuring/BufferedFileTest.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -88,9 +90,11 @@
     "WebServerToolWindowFactoryState": "false",
     "jdk.selected.JAVA_MODULE": "temurin-1.8",
     "last_opened_file_path": "/home/ikorennoy/projects/kuring/src/test/java/one/kuring",
+    "nodejs_package_manager_path": "npm",
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0"
+    "project.structure.side.proportion": "0.0",
+    "settings.editor.selected.configurable": "reference.settingsdialog.project.gradle"
   }
 }]]></component>
   <component name="RecentsManager">
@@ -113,6 +117,29 @@
     </key>
   </component>
   <component name="RunManager" selected="Kotlin.BenchmarkKt">
+    <configuration name="BufferedFileTest.read_lengthGreaterThanBufferSize" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":test" />
+            <option value="--tests" />
+            <option value="&quot;one.kuring.BufferedFileTest.read_lengthGreaterThanBufferSize&quot;" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <method v="2" />
+    </configuration>
     <configuration name="kuring [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -124,28 +151,6 @@
         </option>
         <option name="taskNames">
           <list>
-            <option value="build" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <method v="2" />
-    </configuration>
-    <configuration name="kuring [clean build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value="clean" />
             <option value="build" />
           </list>
         </option>
@@ -177,31 +182,26 @@
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
-    <configuration name="kuring [jar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value="jar" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <method v="2" />
+    <configuration name="BufferedFileTest.read_lengthGreaterThanBufferSize [*]" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true" repeat_mode="Until Failure">
+      <module name="kuring.test" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="one.kuring.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="one.kuring" />
+      <option name="MAIN_CLASS_NAME" value="one.kuring.BufferedFileTest" />
+      <option name="METHOD_NAME" value="read_lengthGreaterThanBufferSize" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
     </configuration>
     <configuration name="BenchmarkKt" type="JetRunConfigurationType" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="one.kuring.benchmark.BenchmarkKt" />
       <module name="kuring.benchmark.main" />
-      <option name="PROGRAM_PARAMETERS" value="-s=1 -w2 $PROJECT_DIR$/../jasyncfio/filename" />
+      <option name="PROGRAM_PARAMETERS" value="-s=32 -c32 -w2 $PROJECT_DIR$/../jasyncfio/filename" />
       <shortenClasspath name="NONE" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -221,20 +221,20 @@
       <method v="2" />
     </configuration>
     <list>
+      <item itemvalue="Gradle.BufferedFileTest.read_lengthGreaterThanBufferSize" />
       <item itemvalue="Gradle.kuring [build]" />
-      <item itemvalue="Gradle.kuring [clean build]" />
       <item itemvalue="Gradle.kuring [clean]" />
-      <item itemvalue="Gradle.kuring [jar]" />
+      <item itemvalue="JUnit.BufferedFileTest.read_lengthGreaterThanBufferSize [*]" />
       <item itemvalue="Kotlin.BenchmarkKt" />
       <item itemvalue="Remote JVM Debug.bench-debug" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Kotlin.BenchmarkKt" />
+        <item itemvalue="JUnit.BufferedFileTest.read_lengthGreaterThanBufferSize [*]" />
+        <item itemvalue="Gradle.BufferedFileTest.read_lengthGreaterThanBufferSize" />
         <item itemvalue="Gradle.kuring [build]" />
         <item itemvalue="Gradle.kuring [clean]" />
-        <item itemvalue="Gradle.kuring [jar]" />
-        <item itemvalue="Gradle.kuring [clean build]" />
       </list>
     </recent_temporary>
   </component>
@@ -249,7 +249,7 @@
       <workItem from="1664891640696" duration="9681000" />
       <workItem from="1664906650182" duration="3408000" />
       <workItem from="1664966609477" duration="6206000" />
-      <workItem from="1664976107766" duration="9024000" />
+      <workItem from="1664976107766" duration="10878000" />
     </task>
     <task id="LOCAL-00001" summary="init">
       <created>1664892277542</created>
@@ -286,7 +286,14 @@
       <option name="project" value="LOCAL" />
       <updated>1664982677741</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Fix benchmark random bug">
+      <created>1664988451071</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1664988451071</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -310,6 +317,22 @@
     <MESSAGE value="Add benchmark init params" />
     <MESSAGE value="Add benchmark simple benchmark" />
     <MESSAGE value="Add channel bench" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add channel bench" />
+    <MESSAGE value="Fix benchmark random bug" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix benchmark random bug" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="kotlin-line">
+          <url>file://$PROJECT_DIR$/benchmark/src/main/kotlin/one/kuring/benchmark/Benchmark.kt</url>
+          <line>101</line>
+          <option name="timeStamp" value="29" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

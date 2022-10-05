@@ -239,11 +239,14 @@ abstract class AbstractFile internal constructor(
      * @return the number of bytes read
      */
     suspend fun read(buffer: ByteBuffer, position: Long, length: Int): Int {
+        if (buffer.capacity() < length) {
+            throw IllegalArgumentException("Buffer capacity less then length")
+        }
         if (buffer.remaining() == 0) {
             return 0
         }
         val bufPosition = buffer.position()
-        val read = suspendCancellableCoroutine<Int> {
+        val read = suspendCancellableCoroutine {
             executor.executeCommand(
                 Command.read(
                     fd,

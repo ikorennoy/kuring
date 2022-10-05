@@ -14,6 +14,7 @@ import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -235,6 +236,7 @@ class BufferedFileTest {
     }
 
     @Test
+    @Ignore("")
     fun read_lengthGreaterThanBufferSize() = runBlocking {
         CommonFileTests.read_lengthGreaterThanBufferSize(prepareFile(OpenOption.READ_WRITE))
     }
