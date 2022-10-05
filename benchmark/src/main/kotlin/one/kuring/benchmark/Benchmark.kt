@@ -4,7 +4,6 @@ import picocli.CommandLine
 import picocli.CommandLine.Command
 import java.nio.file.Paths
 import java.util.concurrent.Callable
-import java.util.concurrent.TimeUnit
 import kotlin.math.max
 import kotlin.system.exitProcess
 
@@ -22,15 +21,29 @@ class Benchmark : Callable<Int> {
     @CommandLine.Option(names = ["-s", "--submit"], description = ["Batch submit, default 32"], paramLabel = "<int>")
     var submit: Int = 32
 
-    @CommandLine.Option(names = ["-c", "--complete"], description = ["Batch complete, default 32"], paramLabel = "<int>")
+    @CommandLine.Option(
+        names = ["-c", "--complete"],
+        description = ["Batch complete, default 32"],
+        paramLabel = "<int>"
+    )
     var complete: Int = 32
 
     @CommandLine.Option(names = ["-b", "--buffer"], description = ["Buffer size, default 4096"], paramLabel = "<int>")
     var bufferSize: Int = 4096
 
-    @CommandLine.Option(names = ["-w", "--workers"], description = ["Number of threads, default 1"], paramLabel = "<int>")
+    @CommandLine.Option(
+        names = ["-w", "--workers"],
+        description = ["Number of threads, default 1"],
+        paramLabel = "<int>"
+    )
     var threads: Int = 1
 
+    @CommandLine.Option(
+        names = ["-S", "--sync-io"],
+        description = ["Use sync IO, default false"],
+        paramLabel = "<bool>"
+    )
+    var sync: Boolean = false
 
 
     override fun call(): Int {
@@ -39,12 +52,28 @@ class Benchmark : Callable<Int> {
         print("submit=$submit, ")
         print("complete=$complete, ")
         print("bufferSize=$bufferSize, ")
+        print("Sync I/O=$sync, ")
         println("threads=$threads")
 
         var maxIops: Long = -1
         val workers: MutableList<BenchmarkWorker> = ArrayList()
         for (i in 0 until threads) {
-            val worker = BenchmarkWorker(Paths.get(file), bufferSize, submit, bufferSize)
+            val worker = if (sync) {
+                BenchmarkWorkerFileChannel(
+                    path = Paths.get(file),
+                    bufferSize = bufferSize,
+                    blockSize = bufferSize
+                )
+            } else {
+                BenchmarkWorkerIoUring(
+                    path = Paths.get(file),
+                    bufferSize = bufferSize,
+                    submitBatchSize = submit,
+                    blockSize = bufferSize,
+                    ioDepth = ioDepth,
+                )
+            }
+
             worker.start()
             workers.add(worker)
         }
@@ -93,4 +122,4 @@ class Benchmark : Callable<Int> {
     }
 }
 
-fun main(args: Array<String>) : Unit = exitProcess(CommandLine(Benchmark()).execute(*args))
+fun main(args: Array<String>): Unit = exitProcess(CommandLine(Benchmark()).execute(*args))
