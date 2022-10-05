@@ -2,7 +2,7 @@ package one.kuring;
 
 import java.util.Locale;
 
-class Native {
+public class Native {
 
     static {
         try {

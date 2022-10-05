@@ -133,7 +133,7 @@ abstract class AbstractFile internal constructor(
      */
     suspend fun size(): Long {
         val statxBuffer = MemoryUtils.allocateMemory(StatxUtils.BUF_SIZE.toLong())
-        suspendCancellableCoroutine<Int> {
+        suspendCancellableCoroutine {
             executor.executeCommand(
                 Command.size(
                     pathAddress,

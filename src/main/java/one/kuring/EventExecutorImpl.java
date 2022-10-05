@@ -6,6 +6,7 @@ import org.jctools.queues.MpscChunkedArrayQueue;
 
 import java.util.Queue;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.IntSupplier;
 
@@ -48,6 +49,9 @@ class EventExecutorImpl extends EventExecutor {
     private final int eventFd = Native.getEventFd();
     final IntObjectMap<Command<?>> commands;
     private final Thread t;
+
+    private final long sleepTimeout = TimeUnit.NANOSECONDS.convert(1000, TimeUnit.MILLISECONDS);
+    private long startWork = -1;
 
     private final IntSupplier sequencer = new IntSupplier() {
         private int i = 0;
@@ -178,7 +182,9 @@ class EventExecutorImpl extends EventExecutor {
             try {
                 state.compareAndSet(AWAKE, WAIT);
                 if (canSleep()) {
-                    park();
+                    if (sleepTimeout()) {
+                        park();
+                    }
                 }
             } catch (Throwable t) {
                 handleLoopException(t);
@@ -186,6 +192,7 @@ class EventExecutorImpl extends EventExecutor {
                 state.compareAndSet(WAIT, AWAKE);
             }
             drain();
+            resetSleepTimeout();
             if (state.get() == STOP) {
                 while (!canSleep()) {
                     // make sure we proceed all tasks, submit all submissions and wait all completions
@@ -195,6 +202,14 @@ class EventExecutorImpl extends EventExecutor {
                 break;
             }
         }
+    }
+
+    private void resetSleepTimeout() {
+        startWork = System.nanoTime();
+    }
+
+    private boolean sleepTimeout() {
+        return System.nanoTime() - startWork >= sleepTimeout;
     }
 
     @Override

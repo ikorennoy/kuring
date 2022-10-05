@@ -1,9 +1,11 @@
 package one.kuring.benchmark
 
-import one.kuring.EventExecutor
 import picocli.CommandLine
 import picocli.CommandLine.Command
+import java.nio.file.Paths
 import java.util.concurrent.Callable
+import java.util.concurrent.TimeUnit
+import kotlin.math.max
 import kotlin.system.exitProcess
 
 @Command(
@@ -26,19 +28,69 @@ class Benchmark : Callable<Int> {
     @CommandLine.Option(names = ["-b", "--buffer"], description = ["Buffer size, default 4096"], paramLabel = "<int>")
     var bufferSize: Int = 4096
 
-
     @CommandLine.Option(names = ["-w", "--workers"], description = ["Number of threads, default 1"], paramLabel = "<int>")
     var threads: Int = 1
 
 
 
     override fun call(): Int {
-        println(EventExecutor.initDefault())
-        return 0
+        print("file=$file, ")
+        print("ioDepth=$ioDepth, ")
+        print("submit=$submit, ")
+        print("complete=$complete, ")
+        print("bufferSize=$bufferSize, ")
+        println("threads=$threads")
+
+        var maxIops: Long = -1
+        val workers: MutableList<BenchmarkWorker> = ArrayList()
+        for (i in 0 until threads) {
+            val worker = BenchmarkWorker(Paths.get(file), bufferSize, submit, bufferSize)
+            worker.start()
+            workers.add(worker)
+        }
+        var reaps: Long = 0
+        var calls: Long = 0
+        var done: Long = 0
+        do {
+            var thisDone: Long = 0
+            var thisReap: Long = 0
+            var thisCall: Long = 0
+            var rpc: Long = 0
+            var ipc: Long = 0
+            var iops: Long = 0
+            var bw: Long = 0
+
+            Thread.sleep(1000)
+
+            for (i in 0 until threads) {
+                thisDone += workers[i].done
+                thisCall += workers[i].calls
+                thisReap += workers[i].reaps
+            }
+
+            if ((thisCall - calls) > 0) {
+                rpc = (thisDone - done) / (thisCall - calls)
+                ipc = (thisReap - reaps) / (thisCall - calls)
+            } else {
+                rpc = -1
+                ipc = -1
+            }
+            iops = thisDone - done
+            bw = if (bufferSize > 1048576) {
+                iops * (bufferSize / 1048576)
+            } else {
+                iops / (1048576 / bufferSize)
+            }
+            print("IOPS=${iops}, ")
+            maxIops = max(maxIops, iops)
+            print("BW=${bw}MiB/s, ")
+            println("IOS/call=${rpc}/${ipc}")
+            done = thisDone
+            calls = thisCall
+            reaps = thisReap
+        } while (true)
+
     }
-
-
-
 }
 
 fun main(args: Array<String>) : Unit = exitProcess(CommandLine(Benchmark()).execute(*args))
