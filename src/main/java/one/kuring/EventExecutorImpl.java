@@ -113,8 +113,7 @@ class EventExecutorImpl extends EventExecutor {
     }
 
     private void wakeup(boolean inEventLoop) {
-        int localState = state.get();
-        if (!inEventLoop && (localState != AWAKE && state.compareAndSet(WAIT, AWAKE))) {
+        if (!inEventLoop && state.getAndSet(AWAKE) != AWAKE) {
             unpark();
         }
     }
@@ -177,22 +176,21 @@ class EventExecutorImpl extends EventExecutor {
 
     private void run() {
         addEventFdRead();
-
         while (true) {
             try {
-                state.compareAndSet(AWAKE, WAIT);
+                state.set(WAIT);
                 if (canSleep()) {
                     if (sleepTimeout()) {
-                        park();
+                        submitTasksAndWait();
+                        resetSleepTimeout();
                     }
                 }
             } catch (Throwable t) {
                 handleLoopException(t);
             } finally {
-                state.compareAndSet(WAIT, AWAKE);
+                state.set(AWAKE);
             }
             drain();
-            resetSleepTimeout();
             if (state.get() == STOP) {
                 while (!canSleep()) {
                     // make sure we proceed all tasks, submit all submissions and wait all completions
@@ -238,7 +236,7 @@ class EventExecutorImpl extends EventExecutor {
         }
     }
 
-    private void park() {
+    private void submitTasksAndWait() {
         sleepableRing.park();
     }
 
@@ -267,9 +265,7 @@ class EventExecutorImpl extends EventExecutor {
         boolean moreWork = true;
         do {
             try {
-                int processed = processAllCompletedTasks();
-                boolean run = runAllTasks();
-                moreWork = processed != 0 || run;
+                moreWork = processAllCompletedTasks() != 0 | runAllTasks();
             } catch (Throwable r) {
                 handleLoopException(r);
             }

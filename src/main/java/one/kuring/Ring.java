@@ -21,7 +21,6 @@ abstract class Ring {
         completionQueue = ring.getCompletionQueue();
 
         if (withBufRing) {
-            System.out.println("With buf ring: " + withBufRing);
             bufRing = new IoUringBufRing(ring.getRingFd(), bufRingBufSize, numOfBuffers);
         } else {
             bufRing = null;
