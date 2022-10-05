@@ -45,7 +45,7 @@ abstract class AbstractFile internal constructor(
      */
     suspend fun read(buffers: Array<ByteBuffer>, position: Long, length: Int): Int {
         val iovecArray = IovecArray(buffers)
-        val bytesRead = suspendCancellableCoroutine<Int> {
+        val bytesRead = suspendCancellableCoroutine {
             executor.executeCommand(
                 Command.readVectored(
                     fd,
@@ -110,7 +110,7 @@ abstract class AbstractFile internal constructor(
      */
     suspend fun write(buffers: Array<ByteBuffer>, position: Long, length: Int): Int {
         val iovecArray = IovecArray(buffers)
-        val bytesWritten = suspendCancellableCoroutine<Int> {
+        val bytesWritten = suspendCancellableCoroutine {
             executor.executeCommand(
                 Command.writeVectored(
                     fd,
@@ -266,7 +266,7 @@ abstract class AbstractFile internal constructor(
     }
 
     suspend fun read(buffer: Long, position: Long, length: Int): Int {
-        val read = suspendCancellableCoroutine<Int> {
+        val read = suspendCancellableCoroutine {
             executor.executeCommand(
                 Command.read(
                     fd,
@@ -316,7 +316,7 @@ abstract class AbstractFile internal constructor(
             return 0
         }
         val bufPos = buffer.position()
-        val written = suspendCancellableCoroutine<Int> {
+        val written = suspendCancellableCoroutine {
             executor.executeCommand(
                 Command.write(
                     fd,
@@ -414,7 +414,7 @@ abstract class AbstractFile internal constructor(
      * Removing removes the name from the filesystem but the file will still be accessible for as long as it is open.
      */
     suspend fun remove(): Int {
-        return suspendCancellableCoroutine<Int> {
+        return suspendCancellableCoroutine {
             executor.executeCommand(
                 Command.unlink(
                     -1,
@@ -432,7 +432,7 @@ abstract class AbstractFile internal constructor(
      */
     suspend fun close() {
         MemoryUtils.freeMemory(pathAddress)
-        suspendCancellableCoroutine<Int> {
+        suspendCancellableCoroutine {
             executor.executeCommand(
                 Command.close(fd, executor, CoroutineResultProvider.newInstance(it))
             )
