@@ -45,6 +45,13 @@ class Benchmark : Callable<Int> {
     )
     var sync: Boolean = false
 
+    @CommandLine.Option(
+        names = ["-f", "--fixed-buffers"],
+        description = ["Use fixed buffers, default true"],
+        paramLabel = "<bool>"
+    )
+    var useFixedBuffer: Boolean = true
+
 
     override fun call(): Int {
         print("file=$file, ")
@@ -53,7 +60,9 @@ class Benchmark : Callable<Int> {
         print("complete=$complete, ")
         print("bufferSize=$bufferSize, ")
         print("Sync I/O=$sync, ")
-        println("threads=$threads")
+        print("Fixed buffers=$useFixedBuffer, ")
+        println("Threads=$threads")
+
 
         var maxIops: Long = -1
         val workers: MutableList<BenchmarkWorker> = ArrayList()
@@ -71,6 +80,7 @@ class Benchmark : Callable<Int> {
                     submitBatchSize = submit,
                     blockSize = bufferSize,
                     ioDepth = ioDepth,
+                    fixedBuffers = useFixedBuffer,
                 )
             }
 

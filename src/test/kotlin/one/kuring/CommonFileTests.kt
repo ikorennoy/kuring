@@ -289,14 +289,14 @@ class CommonFileTests {
         suspend fun bufRing_oneBuffer(testFile: Pair<Path, AbstractFile>) {
             val expected = prepareString(1000)
             writeStringToFile(expected, testFile.first)
-            var bufRingResult: BufRingResult = testFile.second.readFixedBuffer(-1, 4096)
+            var bufRingResult: BufRingResult = testFile.second.readFixedBuffer(-1)
 
             val builder = StringBuilder()
             while (bufRingResult.readBytes != 0) {
                 bufRingResult.buffer.flip()
                 builder.append(StandardCharsets.UTF_8.decode(bufRingResult.buffer))
                 bufRingResult.close()
-                bufRingResult = testFile.second.readFixedBuffer(-1, 4096)
+                bufRingResult = testFile.second.readFixedBuffer(-1)
             }
             assertEquals(expected, builder.toString())
         }
@@ -304,24 +304,24 @@ class CommonFileTests {
         suspend fun bufRing(testFile: Pair<Path, AbstractFile>) {
             val expected = prepareString(1000)
             writeStringToFile(expected, testFile.first)
-            var bufRingResult: BufRingResult = testFile.second.readFixedBuffer(-1, 4096)
+            var bufRingResult: BufRingResult = testFile.second.readFixedBuffer(-1)
             val builder = StringBuilder()
             while (bufRingResult.readBytes != 0) {
                 bufRingResult.buffer.flip()
                 builder.append(StandardCharsets.UTF_8.decode(bufRingResult.buffer))
                 bufRingResult.close()
-                bufRingResult = testFile.second.readFixedBuffer(-1, 4096)
+                bufRingResult = testFile.second.readFixedBuffer(-1)
             }
             assertEquals(expected, builder.toString())
         }
 
         suspend fun bufRing_notRegistered(testFile: Pair<Path, AbstractFile>) {
-            assertFailsWith<IllegalStateException> { testFile.second.readFixedBuffer(-1, 1024) }
+            assertFailsWith<IllegalStateException> { testFile.second.readFixedBuffer(-1) }
         }
 
         suspend fun bufRing_registeredNoBuffers(testFile: Pair<Path, AbstractFile>) {
-            val bufRingResult: BufRingResult = testFile.second.readFixedBuffer(-1, 1024)
-            assertFailsWith<IOException> { testFile.second.readFixedBuffer(-1, 1024) }
+            val bufRingResult: BufRingResult = testFile.second.readFixedBuffer(-1)
+            assertFailsWith<IOException> { testFile.second.readFixedBuffer(-1) }
             bufRingResult.close()
         }
 

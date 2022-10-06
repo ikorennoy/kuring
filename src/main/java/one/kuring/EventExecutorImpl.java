@@ -160,6 +160,20 @@ class EventExecutorImpl extends EventExecutor {
     }
 
     @Override
+    int getBufferLength(PollableStatus pollableStatus) {
+        if (!pollRing.isBufRingInitialized() && !sleepableRing.isBufRingInitialized()) {
+            throw new IllegalStateException("Buf ring is not initialized");
+        }
+        final int bufferSize;
+        if (PollableStatus.POLLABLE == pollableStatus) {
+            bufferSize = pollRing.getBufferLength();
+        } else  {
+            bufferSize = sleepableRing.getBufferLength();
+        }
+        return bufferSize;
+    }
+
+    @Override
     <T> Ring ringFromCommand(Command<T> command) {
         final Ring result;
         if (command.getOp() == Native.IORING_OP_READ || command.getOp() == Native.IORING_OP_WRITE) {

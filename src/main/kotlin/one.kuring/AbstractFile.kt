@@ -192,15 +192,13 @@ abstract class AbstractFile internal constructor(
      * Requires kernel 5.19+
      *
      * @param position The file position at which the transfer is to begin; must be non-negative
-     * @param length   The content length; must be non-negative
      */
-    suspend fun readFixedBuffer(position: Long, length: Int): BufRingResult {
+    suspend fun readFixedBuffer(position: Long): BufRingResult {
         return suspendCancellableCoroutine {
             executor.executeCommand(
                 Command.readProvidedBuf(
                     fd,
                     position,
-                    length,
                     pollableStatus,
                     executor,
                     CoroutineObjectResultProvider.newInstance(it)

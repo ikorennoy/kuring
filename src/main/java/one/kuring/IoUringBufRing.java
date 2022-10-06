@@ -160,4 +160,8 @@ class IoUringBufRing {
     int getId() {
         return id;
     }
+
+    int getBufferSize() {
+        return bufferSize;
+    }
 }

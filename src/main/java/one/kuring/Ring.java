@@ -97,6 +97,10 @@ abstract class Ring {
         return bufRing.getId();
     }
 
+    int getBufferLength() {
+        return bufRing.getBufferSize();
+    }
+
     boolean isBufRingInitialized() {
         return bufRing != null;
     }
