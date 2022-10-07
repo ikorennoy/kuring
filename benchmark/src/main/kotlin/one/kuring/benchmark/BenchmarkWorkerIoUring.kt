@@ -25,7 +25,7 @@ class BenchmarkWorkerIoUring(
     init {
         val builder = EventExecutor.builder()
         if (fixedBuffers) {
-            builder.withBufRing(bufferSize, ioDepth)
+            builder.withBufRing(ioDepth, bufferSize)
         } else {
             buffers = Array(ioDepth) {
                 MemoryUtils.allocateAlignedByteBuffer(
@@ -41,8 +41,8 @@ class BenchmarkWorkerIoUring(
     override fun run() = runBlocking {
         val file = BufferedFile.open(path, eventExecutor, OpenOption.READ_ONLY, OpenOption.NOATIME)
         val maxBlocks = Native.getFileSize(file.fd) / blockSize
-        val localBuffers = buffers!!
         if (!fixedBuffers) {
+            val localBuffers = buffers!!
             if (submitBatchSize == 1) {
                 do {
                     calls++
