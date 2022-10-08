@@ -326,6 +326,20 @@ class CommonFileTests {
         }
 
 
+        suspend fun readAligned(testFile: Pair<Path, AbstractFile>) {
+            val expected: String = prepareString(100)
+            val alignment = Native.getPageSize()
+            val resultStringLength = expected.toByteArray().size
+            writeStringToFile(expected, testFile.first)
+            val buffer = MemoryUtils.allocateAlignedByteBuffer(alignment.toInt(), alignment)
+            testFile.second.read(buffer, 0L)
+            assertEquals(resultStringLength, buffer.position())
+            buffer.flip()
+            val actual = StandardCharsets.UTF_8.decode(buffer).toString()
+            assertEquals(expected.substring(0, resultStringLength), actual)
+        }
+
+
         private fun prepareString(iters: Int): String {
             val sb = StringBuilder()
             val s = "String number "

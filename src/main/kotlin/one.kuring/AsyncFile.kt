@@ -3,7 +3,7 @@ package one.kuring
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.nio.file.Path
 
-class BufferedFile private constructor(
+class AsyncFile private constructor(
     path: String,
     pathPtr: Long,
     fd: Int,
@@ -16,14 +16,14 @@ class BufferedFile private constructor(
             path: Path,
             executor: EventExecutor,
             vararg openOption: OpenOption
-        ): BufferedFile {
+        ): AsyncFile {
             return open(path.normalize().toAbsolutePath().toString(), 438, executor, *openOption)
         }
 
         suspend fun open(
             path: Path,
             executor: EventExecutor,
-        ): BufferedFile {
+        ): AsyncFile {
             return open(path.normalize().toAbsolutePath().toString(), 438, executor, OpenOption.READ_ONLY)
         }
 
@@ -32,14 +32,14 @@ class BufferedFile private constructor(
             mode: Int,
             executor: EventExecutor,
             vararg openOption: OpenOption
-        ): BufferedFile {
+        ): AsyncFile {
             return open(path.normalize().toAbsolutePath().toString(), mode, executor, *openOption)
         }
 
         suspend fun open(
             path: String,
             executor: EventExecutor,
-        ): BufferedFile {
+        ): AsyncFile {
             return open(path, 438, executor, OpenOption.READ_ONLY)
         }
 
@@ -47,7 +47,7 @@ class BufferedFile private constructor(
             path: String,
             executor: EventExecutor,
             vararg openOption: OpenOption
-        ): BufferedFile {
+        ): AsyncFile {
             return open(path, 438, executor, *openOption)
         }
 
@@ -56,9 +56,9 @@ class BufferedFile private constructor(
             mode: Int,
             executor: EventExecutor,
             vararg openOption: OpenOption
-        ): BufferedFile {
+        ): AsyncFile {
             val pathPtr = MemoryUtils.getStringPtr(path)
-            val fd = suspendCancellableCoroutine<Int> {
+            val fd = suspendCancellableCoroutine {
                 executor.executeCommand(
                     Command.openAt(
                         OpenOption.toFlags(*openOption),
@@ -69,14 +69,19 @@ class BufferedFile private constructor(
                     )
                 )
             }
-            return BufferedFile(path, pathPtr, fd, PollableStatus.NON_POLLABLE, executor)
+            val pollableStatus = if (openOption.contains(OpenOption.DIRECT)) {
+                PollableStatus.POLLABLE
+            } else {
+                PollableStatus.NON_POLLABLE
+            }
+            return AsyncFile(path, pathPtr, fd, pollableStatus, executor)
         }
     }
 
     /**
      * Requires pipe to be created
      */
-    private suspend fun copyTo(srcOffset: Long, dst: BufferedFile, dstOffset: Long, length: Int) {
+    private suspend fun copyTo(srcOffset: Long, dst: AsyncFile, dstOffset: Long, length: Int) {
         suspendCancellableCoroutine<Int> {
             executor.executeCommand(
                 Command.splice(

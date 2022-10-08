@@ -52,15 +52,23 @@ class Benchmark : Callable<Int> {
     )
     var useFixedBuffer: Boolean = true
 
+    @CommandLine.Option(
+        names = ["-O", "--direct-io"],
+        description = ["Use O_DIRECT, default true"],
+        paramLabel = "<bool>"
+    )
+    var useDirectIo: Boolean = true
+
 
     override fun call(): Int {
-        print("file=$file, ")
-        print("ioDepth=$ioDepth, ")
-        print("submit=$submit, ")
-        print("complete=$complete, ")
-        print("bufferSize=$bufferSize, ")
+        print("File=$file, ")
+        print("Io Depth=$ioDepth, ")
+        print("Submit=$submit, ")
+        print("Complete=$complete, ")
+        print("Buffer Size=$bufferSize, ")
         print("Sync I/O=$sync, ")
         print("Fixed buffers=$useFixedBuffer, ")
+        print("Direct I/O=$useDirectIo, ")
         println("Threads=$threads")
 
 
@@ -81,6 +89,7 @@ class Benchmark : Callable<Int> {
                     blockSize = bufferSize,
                     ioDepth = ioDepth,
                     fixedBuffers = useFixedBuffer,
+                    directIo = useDirectIo
                 )
             }
 

@@ -14,11 +14,10 @@ import java.nio.file.Path
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class BufferedFileTest {
+class AsyncFileTest {
     private val executor = EventExecutor.initDefault()
 
     @TempDir
@@ -36,17 +35,17 @@ class BufferedFileTest {
                 runBlocking {
                     for (j in 0 until writes) {
                         try {
-                            val bufferedFile: BufferedFile =
-                                BufferedFile.open(tempFile, executor, OpenOption.WRITE_ONLY, OpenOption.APPEND)
+                            val asyncFile: AsyncFile =
+                                AsyncFile.open(tempFile, executor, OpenOption.WRITE_ONLY, OpenOption.APPEND)
 
                             val buffer = ByteBuffer.allocateDirect(1)
                             buffer.put('c'.code.toByte())
                             buffer.flip()
                             if (random.nextBoolean()) {
                                 val buffers = arrayOf(buffer)
-                                bufferedFile.write(buffers)
+                                asyncFile.write(buffers)
                             } else {
-                                bufferedFile.write(buffer)
+                                asyncFile.write(buffer)
                             }
                         } catch (e: Exception) {
                             throw RuntimeException(e)
@@ -57,9 +56,9 @@ class BufferedFileTest {
         }
         pool.shutdown()
         pool.awaitTermination(1, TimeUnit.MINUTES)
-        val bufferedFile: BufferedFile = BufferedFile.open(tempFile, executor, OpenOption.WRITE_ONLY, OpenOption.APPEND)
+        val asyncFile: AsyncFile = AsyncFile.open(tempFile, executor, OpenOption.WRITE_ONLY, OpenOption.APPEND)
 
-        assertEquals((nThreads * writes).toLong(), bufferedFile.size())
+        assertEquals((nThreads * writes).toLong(), asyncFile.size())
         Files.deleteIfExists(tempFile)
     }
 
@@ -170,6 +169,11 @@ class BufferedFileTest {
     }
 
     @Test
+    fun readAligned(): Unit = runBlocking {
+        CommonFileTests.readAligned(prepareFile(OpenOption.DIRECT, OpenOption.READ_WRITE))
+    }
+
+    @Test
     fun size_smallFile() = runBlocking {
         CommonFileTests.size_smallFile(prepareFile(OpenOption.READ_WRITE))
     }
@@ -236,7 +240,6 @@ class BufferedFileTest {
     }
 
     @Test
-    @Ignore("")
     fun read_lengthGreaterThanBufferSize() = runBlocking {
         CommonFileTests.read_lengthGreaterThanBufferSize(prepareFile(OpenOption.READ_WRITE))
     }
@@ -297,14 +300,14 @@ class BufferedFileTest {
         val ee = EventExecutor.builder()
             .withBufRing(4, 4096).build()
         val tempFile = Files.createTempFile(tmpDir, "test-", " file")
-        val file: BufferedFile = BufferedFile.open(tempFile, ee, OpenOption.READ_WRITE)
+        val file: AsyncFile = AsyncFile.open(tempFile, ee, OpenOption.READ_WRITE)
         CommonFileTests.bufRing(Pair(tempFile, file))
     }
 
     private fun prepareFile(vararg openOptions: OpenOption = arrayOf(OpenOption.READ_ONLY)): Pair<Path, AbstractFile> =
         runBlocking {
             val tempFile: Path = Files.createTempFile(tmpDir, "test-", " file")
-            val file: AbstractFile = BufferedFile.open(tempFile, executor, *openOptions)
+            val file: AbstractFile = AsyncFile.open(tempFile, executor, *openOptions)
             tempFile to file
         }
 }

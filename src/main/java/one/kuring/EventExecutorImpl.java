@@ -245,8 +245,8 @@ class EventExecutorImpl extends EventExecutor {
         if (sleepableRing.hasPending()) {
             sleepableRing.submitIo();
         }
-        if (pollRing.hasPending()) {
-            pollRing.submitIo();
+        if (pollRing.hasInKernel() || pollRing.hasPending()) {
+            pollRing.submissionQueue.submit();
         }
     }
 

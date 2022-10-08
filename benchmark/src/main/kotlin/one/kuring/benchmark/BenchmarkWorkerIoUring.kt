@@ -7,7 +7,6 @@ import kotlinx.coroutines.withContext
 import one.kuring.*
 import java.nio.ByteBuffer
 import java.nio.file.Path
-import kotlin.math.max
 
 class BenchmarkWorkerIoUring(
     private val path: Path,
@@ -16,6 +15,7 @@ class BenchmarkWorkerIoUring(
     private val blockSize: Int,
     private val ioDepth: Int,
     private val fixedBuffers: Boolean,
+    private val directIo: Boolean,
 ) : BenchmarkWorker(path, bufferSize, blockSize) {
 
 
@@ -39,7 +39,12 @@ class BenchmarkWorkerIoUring(
 
 
     override fun run() = runBlocking {
-        val file = BufferedFile.open(path, eventExecutor, OpenOption.READ_ONLY, OpenOption.NOATIME)
+        val file = if (directIo) {
+            AsyncFile.open(path, eventExecutor, OpenOption.READ_ONLY, OpenOption.NOATIME, OpenOption.DIRECT)
+        } else {
+            AsyncFile.open(path, eventExecutor, OpenOption.READ_ONLY, OpenOption.NOATIME)
+        }
+
         val maxBlocks = Native.getFileSize(file.fd) / blockSize
         if (!fixedBuffers) {
             val localBuffers = buffers!!
