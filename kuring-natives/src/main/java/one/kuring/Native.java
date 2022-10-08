@@ -95,6 +95,9 @@ public class Native {
 
     public static native long ioUringBufRegSize();
 
+    public static native long getCpuClock();
+
+
     /**
      * took from netty io uring project
      */

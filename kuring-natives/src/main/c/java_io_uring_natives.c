@@ -398,6 +398,13 @@ static jlong io_uring_buf_reg_size(JNIEnv* env, jclass clazz) {
     return sizeof(struct io_uring_buf_reg);
 }
 
+static jlong get_cpu_clock(JNIEnv* env, jclass clazz) {
+	unsigned int lo, hi;
+
+	__asm__ __volatile__("rdtsc" : "=a" (lo), "=d" (hi));
+	return ((jlong) hi << 32ULL) | lo;
+}
+
 static JNINativeMethod method_table[] = {
     {"getStringPointer", "(Ljava/lang/String;)J", (void *) get_string_ptr},
     {"releaseString", "(Ljava/lang/String;J)V", (void *) release_string},
@@ -416,6 +423,7 @@ static JNINativeMethod method_table[] = {
     {"probeOpSize", "()J", (void *) io_uring_probe_op_size},
     {"ioUringBufSize", "()J", (void *) io_uring_buf_size},
     {"ioUringBufRegSize", "()J", (void *) io_uring_buf_reg_size},
+    {"getCpuClock", "()J", (void *) get_cpu_clock}
 };
 
 jint jni_iouring_on_load(JNIEnv *env) {
