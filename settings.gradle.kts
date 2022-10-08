@@ -16,5 +16,5 @@ pluginManagement {
 
 rootProject.name = "kuring"
 
-include("kuring-natives")
-//include(":benchmark")
+include(":kuring-natives")
+include(":benchmark")

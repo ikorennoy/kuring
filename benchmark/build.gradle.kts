@@ -1,10 +1,6 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 plugins {
     kotlin("jvm").version(deps.kotlin)
-    id("com.github.johnrengelman.shadow") version(deps.shadow_plugin)
 }
-
 
 repositories {
     mavenCentral()
@@ -12,12 +8,8 @@ repositories {
 
 dependencies {
     implementation(rootProject)
+    implementation(project(":kuring-natives"))
     implementation("info.picocli:picocli:4.6.3")
-}
-
-tasks.withType(ShadowJar::class) {
-    mergeServiceFiles()
-    minimize()
 }
 
 tasks.jar {

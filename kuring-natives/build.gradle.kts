@@ -22,17 +22,6 @@ fun getOs(osFamily: OperatingSystemFamily): String {
     }
 }
 
-fun getArch(arch: dev.nokee.runtime.nativebase.MachineArchitecture): String {
-    return if (arch.is64Bit) {
-        "x86_64"
-    } else if (arch.is32Bit) {
-        "x86"
-    } else {
-        throw IllegalStateException("unsupported arch $arch")
-    }
-
-}
-
 library {
     targetMachines.set(listOf(machines.linux, machines.windows))
 
