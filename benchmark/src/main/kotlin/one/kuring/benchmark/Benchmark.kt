@@ -4,6 +4,7 @@ import picocli.CommandLine
 import picocli.CommandLine.Command
 import java.nio.file.Paths
 import java.util.concurrent.Callable
+import kotlin.collections.ArrayList
 import kotlin.math.max
 import kotlin.system.exitProcess
 
@@ -59,6 +60,23 @@ class Benchmark : Callable<Int> {
     )
     var useDirectIo: Boolean = true
 
+    @CommandLine.Option(
+        names = ["-wp", "--wakeup-percentile"],
+        description = ["Publish event loop wakeup delay percentile"],
+        paramLabel = "<bool>"
+    )
+    var eventLoopWakeupPercentile: Boolean = true
+
+    @CommandLine.Option(
+        names = ["-F", "--tsc-rate"],
+        description = ["TSC rate in HZ"],
+        paramLabel = "<int>"
+    )
+    var tscRate: Long = -1
+
+    private val defaultPercentiles =
+        doubleArrayOf(0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 0.99, 0.995, 0.999, 0.9995, 0.9999)
+
 
     override fun call(): Int {
         print("File=$file, ")
@@ -95,6 +113,31 @@ class Benchmark : Callable<Int> {
 
             worker.start()
             workers.add(worker)
+        }
+
+        if (eventLoopWakeupPercentile) {
+            Runtime.getRuntime().addShutdownHook(Thread {
+                for (i in 0 until workers.size) {
+                    val percentiles = workers[i].getPercentiles(defaultPercentiles)
+                    val message = if (tscRate != -1L) {
+                        "Worker #$i loop wakeup percentiles usec"
+                    } else {
+                        "Worker #$i loop wakeup percentiles TSC"
+                    }
+                    println(message)
+                    for (j in percentiles.indices) {
+                        val value = if (tscRate != -1L) {
+                            convertToNsec(percentiles[j]) / 1000.0
+                        } else {
+                            percentiles[j].toLong()
+                        }
+                        print("${defaultPercentiles[j] * 100.0}=[${value}], ")
+                        if (j.mod(2) == 0) {
+                            println()
+                        }
+                    }
+                }
+            })
         }
 
         var reap: Long = 0
@@ -140,6 +183,10 @@ class Benchmark : Callable<Int> {
             reap = thisReap
         } while (true)
 
+    }
+
+    private fun convertToNsec(cycles: Double): Long {
+        return (cycles.toLong() * 1_000_000_000L) / tscRate
     }
 }
 

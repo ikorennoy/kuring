@@ -12,6 +12,9 @@ class BenchmarkWorkerFileChannel(
     private val bufferSize: Int,
     private val blockSize: Int,
 ) : BenchmarkWorker(path, bufferSize, blockSize) {
+    override fun getPercentiles(defaultPercentiles: DoubleArray): DoubleArray {
+        TODO("Not yet implemented")
+    }
 
     override fun run() {
         val file = FileChannel.open(path)

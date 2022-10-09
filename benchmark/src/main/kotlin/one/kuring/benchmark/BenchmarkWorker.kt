@@ -35,4 +35,6 @@ abstract class BenchmarkWorker(
     fun start() {
         thread.start()
     }
+
+    abstract fun getPercentiles(defaultPercentiles: DoubleArray): DoubleArray
 }

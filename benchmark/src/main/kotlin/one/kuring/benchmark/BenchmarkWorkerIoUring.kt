@@ -37,6 +37,10 @@ class BenchmarkWorkerIoUring(
         eventExecutor = builder.build()
     }
 
+    override fun getPercentiles(defaultPercentiles: DoubleArray): DoubleArray {
+        return eventExecutor.publishWakeupDelayPercentiles(defaultPercentiles)
+    }
+
 
     override fun run() = runBlocking {
         val file = if (directIo) {

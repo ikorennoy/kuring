@@ -28,6 +28,8 @@ public abstract class EventExecutor implements AutoCloseable {
 
     abstract int getBufferLength(PollableStatus pollableStatus);
 
+    public abstract double[] publishWakeupDelayPercentiles(double[] percentiles);
+
     public static class Builder {
         private int entries = 4096;
         private boolean ioRingSetupSqPoll = false;
