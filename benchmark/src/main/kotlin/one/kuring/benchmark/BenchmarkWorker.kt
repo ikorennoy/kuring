@@ -2,7 +2,6 @@ package one.kuring.benchmark
 
 import java.nio.file.Path
 import java.util.Random
-import java.util.concurrent.ThreadLocalRandom
 import kotlin.math.abs
 
 abstract class BenchmarkWorker(
@@ -36,5 +35,7 @@ abstract class BenchmarkWorker(
         thread.start()
     }
 
-    abstract fun getPercentiles(defaultPercentiles: DoubleArray): DoubleArray
+    abstract fun getLoopWakeupPercentiles(defaultPercentiles: DoubleArray): DoubleArray
+    abstract fun getSleepableRingPercentiles(defaultPercentiles: DoubleArray): DoubleArray
+    abstract fun getPollRingLatencies(defaultPercentiles: DoubleArray): DoubleArray
 }

@@ -5,6 +5,7 @@ import one.kuring.collections.IntObjectHashMap;
 import one.kuring.collections.IntObjectMap;
 import org.jctools.queues.MpscChunkedArrayQueue;
 
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -51,6 +52,7 @@ class EventExecutorImpl extends EventExecutor {
     private final long eventFdBuffer = MemoryUtils.allocateMemory(8);
     private final int eventFd = Native.getEventFd();
     final IntObjectMap<Command<?>> commands;
+    final Map<Integer, Long> commandExecutionStart = new IntObjectHashMap<>();
     private final Thread t;
 
     private final long sleepTimeout = TimeUnit.NANOSECONDS.convert(1000, TimeUnit.MILLISECONDS);
@@ -105,8 +107,8 @@ class EventExecutorImpl extends EventExecutor {
         }
 
 
-        sleepableRing = new SleepableRing(entries, flags, sqThreadIdle, sqThreadCpu, cqSize, attachWqRingFd, withBufRing, bufRingBufSize, numOfBuffers, eventFd, eventFdBuffer, this, commands);
-        pollRing = new PollRing(entries, flags | Native.IORING_SETUP_IOPOLL, sqThreadIdle, sqThreadCpu, cqSize, attachWqRingFd, withBufRing, bufRingBufSize, numOfBuffers, commands);
+        sleepableRing = new SleepableRing(entries, flags, sqThreadIdle, sqThreadCpu, cqSize, attachWqRingFd, withBufRing, bufRingBufSize, numOfBuffers, eventFd, eventFdBuffer, this, commands, commandExecutionStart);
+        pollRing = new PollRing(entries, flags | Native.IORING_SETUP_IOPOLL, sqThreadIdle, sqThreadCpu, cqSize, attachWqRingFd, withBufRing, bufRingBufSize, numOfBuffers, commands, commandExecutionStart);
 
         this.t = new Thread(this::run, "EventExecutor");
     }
@@ -150,6 +152,7 @@ class EventExecutorImpl extends EventExecutor {
     @Override
     <T> long scheduleCommand(Command<T> command) {
         int id = sequencer.getAsInt();
+        commandExecutionStart.put(id, Native.getCpuClock());
         commands.put(id, command);
         return id;
     }
@@ -286,6 +289,14 @@ class EventExecutorImpl extends EventExecutor {
             lock.unlock();
         }
         return res;
+    }
+
+    public double[] publishPollRingCommandExecutionDelays(double[] percentiles) {
+        return pollRing.publishCommandExecutionDelays(percentiles);
+    }
+
+    public double[] publishSleepableRingCommandExecutionDelays(double[] percentiles) {
+        return sleepableRing.publishCommandExecutionDelays(percentiles);
     }
 
     @Override

@@ -1,21 +1,30 @@
 package one.kuring;
 
+import com.tdunning.math.stats.TDigest;
 import one.kuring.collections.IntObjectMap;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 
 abstract class Ring {
     final Uring ring;
     final CompletionQueue completionQueue;
     final SubmissionQueue submissionQueue;
     private final IntObjectMap<Command<?>> commands;
+    private final Map<Integer, Long> commandExecutionBegin;
     private final CompletionCallback callback = this::handle;
+
+    private final TDigest commandExecutionDelay = TDigest.createDigest(100.0);
+
+    private final ReentrantLock lock = new ReentrantLock();
 
     private final IoUringBufRing bufRing;
 
-    Ring(int entries, int flags, int sqThreadIdle, int sqThreadCpu, int cqSize, int attachWqRingFd, boolean withBufRing, int bufRingBufSize, int numOfBuffers, IntObjectMap<Command<?>> commands) {
+    Ring(int entries, int flags, int sqThreadIdle, int sqThreadCpu, int cqSize, int attachWqRingFd, boolean withBufRing, int bufRingBufSize, int numOfBuffers, IntObjectMap<Command<?>> commands, Map<Integer, Long> commandExecutionBegin) {
         this.commands = commands;
+        this.commandExecutionBegin = commandExecutionBegin;
         ring = Native.setupIoUring(entries, flags, sqThreadIdle, sqThreadCpu, cqSize, attachWqRingFd);
         submissionQueue = ring.getSubmissionQueue();
         completionQueue = ring.getCompletionQueue();
@@ -33,6 +42,7 @@ abstract class Ring {
 
     private void handle(int res, int flags, long data) {
         Command<?> command = commands.remove((int) data);
+        long executionStart = commandExecutionBegin.remove((int) data);
         if (command != null) {
             if (res >= 0) {
                 if (isIoringCqeFBufferSet(flags)) {
@@ -47,6 +57,13 @@ abstract class Ring {
                 command.error(new IOException(String.format("Error code: %d; message: %s", -res, Native.decodeErrno(res))));
             }
         }
+        try {
+            lock.lock();
+            commandExecutionDelay.add(Native.getCpuClock() - executionStart);
+        } finally {
+            lock.unlock();
+        }
+
     }
 
     void close() {
@@ -64,6 +81,19 @@ abstract class Ring {
 
     int processCompletedTasks() {
         return completionQueue.processEvents(callback);
+    }
+
+    public double[] publishCommandExecutionDelays(double[] percentiles) {
+        double[] res = new double[percentiles.length];
+        try {
+            lock.lock();
+            for (int i = 0; i < percentiles.length; i++) {
+                res[i] = commandExecutionDelay.quantile(percentiles[i]);
+            }
+        } finally {
+            lock.unlock();
+        }
+        return res;
     }
 
     void recycleBuffer(int bufferId) {

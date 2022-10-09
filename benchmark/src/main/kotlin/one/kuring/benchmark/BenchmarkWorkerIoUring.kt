@@ -37,8 +37,16 @@ class BenchmarkWorkerIoUring(
         eventExecutor = builder.build()
     }
 
-    override fun getPercentiles(defaultPercentiles: DoubleArray): DoubleArray {
+    override fun getLoopWakeupPercentiles(defaultPercentiles: DoubleArray): DoubleArray {
         return eventExecutor.publishWakeupDelayPercentiles(defaultPercentiles)
+    }
+
+    override fun getSleepableRingPercentiles(defaultPercentiles: DoubleArray): DoubleArray {
+        return eventExecutor.publishSleepableRingCommandExecutionDelays(defaultPercentiles)
+    }
+
+    override fun getPollRingLatencies(defaultPercentiles: DoubleArray): DoubleArray {
+        return eventExecutor.publishPollRingCommandExecutionDelays(defaultPercentiles)
     }
 
 

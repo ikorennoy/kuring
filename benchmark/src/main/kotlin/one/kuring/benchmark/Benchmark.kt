@@ -4,7 +4,6 @@ import picocli.CommandLine
 import picocli.CommandLine.Command
 import java.nio.file.Paths
 import java.util.concurrent.Callable
-import kotlin.collections.ArrayList
 import kotlin.math.max
 import kotlin.system.exitProcess
 
@@ -61,14 +60,14 @@ class Benchmark : Callable<Int> {
     var useDirectIo: Boolean = true
 
     @CommandLine.Option(
-        names = ["-wp", "--wakeup-percentile"],
-        description = ["Publish event loop wakeup delay percentile"],
+        names = ["-t", "--track-latencies"],
+        description = ["Track I/O latencies"],
         paramLabel = "<bool>"
     )
     var eventLoopWakeupPercentile: Boolean = true
 
     @CommandLine.Option(
-        names = ["-F", "--tsc-rate"],
+        names = ["-T", "--tsc-rate"],
         description = ["TSC rate in HZ"],
         paramLabel = "<int>"
     )
@@ -76,6 +75,8 @@ class Benchmark : Callable<Int> {
 
     private val defaultPercentiles =
         doubleArrayOf(0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 0.99, 0.995, 0.999, 0.9995, 0.9999)
+
+    private val workers = mutableListOf<BenchmarkWorker>()
 
 
     override fun call(): Int {
@@ -91,7 +92,6 @@ class Benchmark : Callable<Int> {
 
 
         var maxIops: Long = -1
-        val workers: MutableList<BenchmarkWorker> = ArrayList()
         for (i in 0 until threads) {
             val worker = if (sync) {
                 BenchmarkWorkerFileChannel(
@@ -117,26 +117,9 @@ class Benchmark : Callable<Int> {
 
         if (eventLoopWakeupPercentile) {
             Runtime.getRuntime().addShutdownHook(Thread {
-                for (i in 0 until workers.size) {
-                    val percentiles = workers[i].getPercentiles(defaultPercentiles)
-                    val message = if (tscRate != -1L) {
-                        "Worker #$i loop wakeup percentiles usec"
-                    } else {
-                        "Worker #$i loop wakeup percentiles TSC"
-                    }
-                    println(message)
-                    for (j in percentiles.indices) {
-                        val value = if (tscRate != -1L) {
-                            convertToNsec(percentiles[j]) / 1000.0
-                        } else {
-                            percentiles[j].toLong()
-                        }
-                        print("${defaultPercentiles[j] * 100.0}=[${value}], ")
-                        if (j.mod(2) == 0) {
-                            println()
-                        }
-                    }
-                }
+                printLoopWakeupLatencies()
+                printIoLatencies()
+
             })
         }
 
@@ -187,6 +170,60 @@ class Benchmark : Callable<Int> {
 
     private fun convertToNsec(cycles: Double): Long {
         return (cycles.toLong() * 1_000_000_000L) / tscRate
+    }
+
+    private fun printLoopWakeupLatencies() {
+        for (i in 0 until workers.size) {
+            val percentiles = workers[i].getLoopWakeupPercentiles(defaultPercentiles)
+            val message = if (tscRate != -1L) {
+                "Worker #$i loop wakeup percentiles usec"
+            } else {
+                "Worker #$i loop wakeup percentiles TSC"
+            }
+            println(message)
+            for (j in percentiles.indices) {
+                val value = if (tscRate != -1L) {
+                    convertToNsec(percentiles[j]) / 1000.0
+                } else {
+                    percentiles[j].toLong()
+                }
+                print("${defaultPercentiles[j] * 100.0}=[${value}], ")
+                if (j.mod(2) == 0) {
+                    println()
+                }
+            }
+        }
+    }
+
+    private fun printIoLatencies() {
+        for (i in 0 until workers.size) {
+            val sleepableRingLatencies = workers[i].getSleepableRingPercentiles(defaultPercentiles)
+            val pollRingLatencies = workers[i].getPollRingLatencies(defaultPercentiles)
+            printRingLatencies(sleepableRingLatencies, "sleepable", i)
+            if (useDirectIo) {
+                printRingLatencies(pollRingLatencies, "poll", i)
+            }
+        }
+    }
+
+    private fun printRingLatencies(latencies: DoubleArray, ring: String, worker: Int) {
+        val message = if (tscRate != -1L) {
+            "Worker #$worker $ring ring percentiles usec"
+        } else {
+            "Worker #$worker $ring ring percentiles TSC"
+        }
+        println(message)
+        for (j in latencies.indices) {
+            val value = if (tscRate != -1L) {
+                convertToNsec(latencies[j]) / 1000.0
+            } else {
+                latencies[j].toLong()
+            }
+            print("${defaultPercentiles[j] * 100.0}=[${value}], ")
+            if (j.mod(2) == 0) {
+                println()
+            }
+        }
     }
 }
 
