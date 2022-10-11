@@ -14,16 +14,16 @@ abstract class BenchmarkWorker(
 
     private val random = Random(thread.hashCode().toLong())
 
-//    @Volatile
+    @Volatile
     var calls: Long = 0
 
-//    @Volatile
+    @Volatile
     var done: Long = 0
 
-//    @Volatile
+    @Volatile
     var reaps: Long = 0;
 
-//    @Volatile
+    @Volatile
     var isRunning: Boolean = true
 
 
@@ -34,8 +34,4 @@ abstract class BenchmarkWorker(
     fun start() {
         thread.start()
     }
-
-    abstract fun getLoopWakeupPercentiles(defaultPercentiles: DoubleArray): DoubleArray
-    abstract fun getSleepableRingPercentiles(defaultPercentiles: DoubleArray): DoubleArray
-    abstract fun getPollRingLatencies(defaultPercentiles: DoubleArray): DoubleArray
 }

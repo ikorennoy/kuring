@@ -12,17 +12,6 @@ class BenchmarkWorkerFileChannel(
     private val bufferSize: Int,
     private val blockSize: Int,
 ) : BenchmarkWorker(path, bufferSize, blockSize) {
-    override fun getLoopWakeupPercentiles(defaultPercentiles: DoubleArray): DoubleArray {
-        TODO("Not yet implemented")
-    }
-
-    override fun getSleepableRingPercentiles(defaultPercentiles: DoubleArray): DoubleArray {
-        TODO("Not yet implemented")
-    }
-
-    override fun getPollRingLatencies(defaultPercentiles: DoubleArray): DoubleArray {
-        TODO("Not yet implemented")
-    }
 
     override fun run() {
         val file = FileChannel.open(path)

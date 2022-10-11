@@ -2,11 +2,19 @@ package one.kuring;
 
 import one.kuring.collections.IntObjectMap;
 
-import java.util.Map;
-
 class PollRing extends Ring {
-    PollRing(int entries, int flags, int sqThreadIdle, int sqThreadCpu, int cqSize, int attachWqRingFd, boolean withBufRing, int bufRingBufSize, int numOfBuffers, IntObjectMap<Command<?>> commands, Map<Integer, Long> commandExecutionStart) {
-        super(entries, flags, sqThreadIdle, sqThreadCpu, cqSize, attachWqRingFd, withBufRing, bufRingBufSize, numOfBuffers, commands, commandExecutionStart);
+    PollRing(int entries,
+             int flags,
+             int sqThreadIdle,
+             int sqThreadCpu,
+             int cqSize,
+             int attachWqRingFd,
+             boolean withBufRing,
+             int bufRingBufSize,
+             int numOfBuffers,
+             IntObjectMap<Command<?>> commands
+    ) {
+        super(entries, flags, sqThreadIdle, sqThreadCpu, cqSize, attachWqRingFd, withBufRing, bufRingBufSize, numOfBuffers, commands);
     }
 
     @Override

@@ -1,17 +1,13 @@
 package one.kuring;
 
-import com.tdunning.math.stats.TDigest;
 import one.kuring.collections.IntObjectHashMap;
 import one.kuring.collections.IntObjectMap;
 import org.jctools.queues.MpscChunkedArrayQueue;
 
-import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.locks.StampedLock;
 import java.util.function.IntSupplier;
 
 class EventExecutorImpl extends EventExecutor {
@@ -52,17 +48,10 @@ class EventExecutorImpl extends EventExecutor {
     private final long eventFdBuffer = MemoryUtils.allocateMemory(8);
     private final int eventFd = Native.getEventFd();
     final IntObjectMap<Command<?>> commands;
-    final Map<Integer, Long> commandExecutionStart = new IntObjectHashMap<>();
     private final Thread t;
 
     private final long sleepTimeout = TimeUnit.NANOSECONDS.convert(1000, TimeUnit.MILLISECONDS);
     private long startWork = -1;
-
-    private final TDigest wakeupMonitoring = TDigest.createDigest(100.0);
-
-    ReentrantLock lock = new ReentrantLock();
-
-    private volatile long wakeupStart = -1;
 
     private final IntSupplier sequencer = new IntSupplier() {
         private int i = 0;
@@ -107,8 +96,8 @@ class EventExecutorImpl extends EventExecutor {
         }
 
 
-        sleepableRing = new SleepableRing(entries, flags, sqThreadIdle, sqThreadCpu, cqSize, attachWqRingFd, withBufRing, bufRingBufSize, numOfBuffers, eventFd, eventFdBuffer, this, commands, commandExecutionStart);
-        pollRing = new PollRing(entries, flags | Native.IORING_SETUP_IOPOLL, sqThreadIdle, sqThreadCpu, cqSize, attachWqRingFd, withBufRing, bufRingBufSize, numOfBuffers, commands, commandExecutionStart);
+        sleepableRing = new SleepableRing(entries, flags, sqThreadIdle, sqThreadCpu, cqSize, attachWqRingFd, withBufRing, bufRingBufSize, numOfBuffers, eventFd, eventFdBuffer, this, commands);
+        pollRing = new PollRing(entries, flags | Native.IORING_SETUP_IOPOLL, sqThreadIdle, sqThreadCpu, cqSize, attachWqRingFd, withBufRing, bufRingBufSize, numOfBuffers, commands);
 
         this.t = new Thread(this::run, "EventExecutor");
     }
@@ -125,7 +114,6 @@ class EventExecutorImpl extends EventExecutor {
 
     private void wakeup(boolean inEventLoop) {
         if (!inEventLoop && state.getAndSet(AWAKE) != AWAKE) {
-            wakeupStart = Native.getCpuClock();
             unpark();
         }
     }
@@ -152,7 +140,6 @@ class EventExecutorImpl extends EventExecutor {
     @Override
     <T> long scheduleCommand(Command<T> command) {
         int id = sequencer.getAsInt();
-        commandExecutionStart.put(id, Native.getCpuClock());
         commands.put(id, command);
         return id;
     }
@@ -216,13 +203,6 @@ class EventExecutorImpl extends EventExecutor {
                 handleLoopException(t);
             } finally {
                 state.set(AWAKE);
-                try {
-                    lock.lock();
-                    wakeupMonitoring.add(Native.getCpuClock() - wakeupStart);
-                } finally {
-                    lock.unlock();
-                }
-
             }
             drain();
             if (state.get() == STOP) {
@@ -276,27 +256,6 @@ class EventExecutorImpl extends EventExecutor {
 
     private void unpark() {
         sleepableRing.unpark();
-    }
-
-    public double[] publishWakeupDelayPercentiles(double[] percentiles) {
-        final double[] res = new double[percentiles.length];
-        try {
-            lock.lock();
-            for (int i = 0; i < percentiles.length; i++) {
-                res[i] = wakeupMonitoring.quantile(percentiles[i]);
-            }
-        } finally {
-            lock.unlock();
-        }
-        return res;
-    }
-
-    public double[] publishPollRingCommandExecutionDelays(double[] percentiles) {
-        return pollRing.publishCommandExecutionDelays(percentiles);
-    }
-
-    public double[] publishSleepableRingCommandExecutionDelays(double[] percentiles) {
-        return sleepableRing.publishCommandExecutionDelays(percentiles);
     }
 
     @Override

@@ -115,14 +115,6 @@ class Benchmark : Callable<Int> {
             workers.add(worker)
         }
 
-        if (eventLoopWakeupPercentile) {
-            Runtime.getRuntime().addShutdownHook(Thread {
-                printLoopWakeupLatencies()
-                printIoLatencies()
-
-            })
-        }
-
         var reap: Long = 0
         var calls: Long = 0
         var done: Long = 0
@@ -172,59 +164,6 @@ class Benchmark : Callable<Int> {
         return (cycles.toLong() * 1_000_000_000L) / tscRate
     }
 
-    private fun printLoopWakeupLatencies() {
-        for (i in 0 until workers.size) {
-            val percentiles = workers[i].getLoopWakeupPercentiles(defaultPercentiles)
-            val message = if (tscRate != -1L) {
-                "Worker #$i loop wakeup percentiles usec"
-            } else {
-                "Worker #$i loop wakeup percentiles TSC"
-            }
-            println(message)
-            for (j in percentiles.indices) {
-                val value = if (tscRate != -1L) {
-                    convertToNsec(percentiles[j]) / 1000.0
-                } else {
-                    percentiles[j].toLong()
-                }
-                print("${defaultPercentiles[j] * 100.0}=[${value}], ")
-                if (j.mod(2) == 0) {
-                    println()
-                }
-            }
-        }
-    }
-
-    private fun printIoLatencies() {
-        for (i in 0 until workers.size) {
-            val sleepableRingLatencies = workers[i].getSleepableRingPercentiles(defaultPercentiles)
-            val pollRingLatencies = workers[i].getPollRingLatencies(defaultPercentiles)
-            printRingLatencies(sleepableRingLatencies, "sleepable", i)
-            if (useDirectIo) {
-                printRingLatencies(pollRingLatencies, "poll", i)
-            }
-        }
-    }
-
-    private fun printRingLatencies(latencies: DoubleArray, ring: String, worker: Int) {
-        val message = if (tscRate != -1L) {
-            "Worker #$worker $ring ring percentiles usec"
-        } else {
-            "Worker #$worker $ring ring percentiles TSC"
-        }
-        println(message)
-        for (j in latencies.indices) {
-            val value = if (tscRate != -1L) {
-                convertToNsec(latencies[j]) / 1000.0
-            } else {
-                latencies[j].toLong()
-            }
-            print("${defaultPercentiles[j] * 100.0}=[${value}], ")
-            if (j.mod(2) == 0) {
-                println()
-            }
-        }
-    }
 }
 
 fun main(args: Array<String>): Unit = exitProcess(CommandLine(Benchmark()).execute(*args))

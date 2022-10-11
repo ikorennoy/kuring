@@ -2,8 +2,6 @@ package one.kuring;
 
 import one.kuring.collections.IntObjectMap;
 
-import java.util.Map;
-
 class SleepableRing extends Ring {
     private final int eventFd;
     private final long eventFdBuffer;
@@ -21,10 +19,9 @@ class SleepableRing extends Ring {
                   int eventFd,
                   long eventFdBuffer,
                   EventExecutor executor,
-                  IntObjectMap<Command<?>> commands,
-                  Map<Integer, Long> commandExecutionBegin
+                  IntObjectMap<Command<?>> commands
     ) {
-        super(entries, flags, sqThreadIdle, sqThreadCpu, cqSize, attachWqRingFd, withBufRing, bufRingBufSize, numOfBuffers, commands, commandExecutionBegin);
+        super(entries, flags, sqThreadIdle, sqThreadCpu, cqSize, attachWqRingFd, withBufRing, bufRingBufSize, numOfBuffers, commands);
         this.eventFd = eventFd;
         this.eventFdBuffer = eventFdBuffer;
         this.executor = executor;

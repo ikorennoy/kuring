@@ -37,19 +37,6 @@ class BenchmarkWorkerIoUring(
         eventExecutor = builder.build()
     }
 
-    override fun getLoopWakeupPercentiles(defaultPercentiles: DoubleArray): DoubleArray {
-        return eventExecutor.publishWakeupDelayPercentiles(defaultPercentiles)
-    }
-
-    override fun getSleepableRingPercentiles(defaultPercentiles: DoubleArray): DoubleArray {
-        return eventExecutor.publishSleepableRingCommandExecutionDelays(defaultPercentiles)
-    }
-
-    override fun getPollRingLatencies(defaultPercentiles: DoubleArray): DoubleArray {
-        return eventExecutor.publishPollRingCommandExecutionDelays(defaultPercentiles)
-    }
-
-
     override fun run() = runBlocking {
         val file = if (directIo) {
             AsyncFile.open(path, eventExecutor, OpenOption.READ_ONLY, OpenOption.NOATIME, OpenOption.DIRECT)
