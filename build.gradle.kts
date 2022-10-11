@@ -24,7 +24,7 @@ dependencies {
     implementation("cn.danielw:fast-object-pool:${deps.object_pool}")
     implementation("com.conversantmedia:disruptor:${deps.object_pool_disruptor}")
     implementation("org.jctools:jctools-core:${deps.jctools}")
-    implementation("com.tdunning:t-digest:3.3")
+//    implementation("com.tdunning:t-digest:3.3")
     implementation(project(":kuring-natives"))
     testImplementation("org.junit.jupiter:junit-jupiter:${deps.junit}")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:${deps.kotlin_test}")
