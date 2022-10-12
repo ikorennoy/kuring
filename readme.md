@@ -1,7 +1,5 @@
 # KUring
 
-[![Build](https://github.com/ikorennoy/jasyncfio/actions/workflows/build.yml/badge.svg)](https://github.com/ikorennoy/jasyncfio/actions/workflows/build.yml)
-
 KUring provides an asynchronous file I/O API based on the Linux io_uring interface.
 
 ## KUring Features
