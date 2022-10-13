@@ -4,8 +4,6 @@ import one.kuring.collections.IntObjectMap;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Map;
-import java.util.concurrent.locks.ReentrantLock;
 
 abstract class Ring {
     final Uring ring;
