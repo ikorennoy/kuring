@@ -1,6 +1,5 @@
 package one.kuring;
 
-import com.tdunning.math.stats.TDigest;
 import one.kuring.collections.IntObjectMap;
 
 import java.io.IOException;
