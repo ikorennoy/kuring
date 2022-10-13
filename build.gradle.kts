@@ -2,10 +2,10 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm").version(deps.kotlin)
+    id("me.champeau.jmh").version(deps.jmh_plugin)
 }
 
 group = "one.kuring"
-
 
 repositories {
     mavenCentral()

@@ -25,8 +25,7 @@ class BenchmarkWorkerFileChannel(
             }
             buffer.clear()
             done++
-
-        } while (true)
+        } while (isRunning)
 
     }
 

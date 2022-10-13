@@ -1,6 +1,7 @@
 object deps {
     const val kotlin = "1.7.10"
     const val kotlin_coroutines = "1.6.1"
+    const val jmh_plugin = "0.6.8"
     const val junit = "5.9.0"
     const val kotlin_test = kotlin
     const val shadow_plugin = "7.1.2"

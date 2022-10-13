@@ -114,6 +114,21 @@ class Command<T> implements Runnable {
         }
     }
 
+    static <T> Command<T> nop(EventExecutor executor, ResultProvider<T> resultProvider) {
+        return init(Native.IORING_OP_NOP,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                PollableStatus.NON_POLLABLE,
+                executor,
+                resultProvider);
+    }
+
     static <T> Command<T> writeVectored(
             int fd,
             long offset,
